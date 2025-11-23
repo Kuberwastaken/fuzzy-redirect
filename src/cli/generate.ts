@@ -6,7 +6,34 @@ import path from 'path';
 const IGNORED_FILES = ['_app', '_document', '_error', 'layout', 'loading', 'error', 'not-found', 'template', 'head', 'api'];
 const EXTENSIONS = ['.js', '.jsx', '.ts', '.tsx'];
 
-function scanDirectory(dir: string, basePath = ''): string[] {
+interface GeneratorOptions {
+    exclude?: string[];
+    includeDynamic?: boolean;
+}
+
+function parseArgs(): GeneratorOptions {
+    const args = process.argv.slice(2);
+    const options: GeneratorOptions = {
+        exclude: [],
+        includeDynamic: false
+    };
+
+    for (let i = 0; i < args.length; i++) {
+        const arg = args[i];
+        if (arg === '--exclude') {
+            const val = args[i + 1];
+            if (val) {
+                options.exclude = val.split(',').map(s => s.trim());
+                i++;
+            }
+        } else if (arg === '--include-dynamic') {
+            options.includeDynamic = true;
+        }
+    }
+    return options;
+}
+
+function scanDirectory(dir: string, options: GeneratorOptions, basePath = ''): string[] {
     let routes: string[] = [];
 
     if (!fs.existsSync(dir)) return routes;
@@ -25,7 +52,7 @@ function scanDirectory(dir: string, basePath = ''): string[] {
             const segment = file.startsWith('(') && file.endsWith(')') ? '' : file;
             const newBasePath = path.join(basePath, segment).replace(/\\/g, '/');
 
-            routes = routes.concat(scanDirectory(fullPath, newBasePath));
+            routes = routes.concat(scanDirectory(fullPath, options, newBasePath));
         } else {
             const ext = path.extname(file);
             if (!EXTENSIONS.includes(ext)) continue;
@@ -50,9 +77,15 @@ function scanDirectory(dir: string, basePath = ''): string[] {
             // Fix Windows paths just in case
             routePath = routePath.replace(/\\/g, '/');
 
-            // Skip dynamic routes for now as they are hard to fuzzy match against static strings
-            // e.g., /products/[id]
-            if (routePath.includes('[')) continue;
+            // Exclude check
+            if (options.exclude && options.exclude.some(e => routePath.includes(e))) {
+                continue;
+            }
+
+            // Dynamic route check
+            if (routePath.includes('[') && !options.includeDynamic) {
+                continue;
+            }
 
             routes.push(routePath);
         }
@@ -62,6 +95,7 @@ function scanDirectory(dir: string, basePath = ''): string[] {
 }
 
 function generateRoutes() {
+    const options = parseArgs();
     const cwd = process.cwd();
     const pagesDir = path.join(cwd, 'pages');
     const appDir = path.join(cwd, 'app');
@@ -72,18 +106,18 @@ function generateRoutes() {
 
     if (fs.existsSync(pagesDir)) {
         console.log('Scanning pages/ directory...');
-        routes = routes.concat(scanDirectory(pagesDir));
+        routes = routes.concat(scanDirectory(pagesDir, options));
     } else if (fs.existsSync(srcPagesDir)) {
         console.log('Scanning src/pages/ directory...');
-        routes = routes.concat(scanDirectory(srcPagesDir));
+        routes = routes.concat(scanDirectory(srcPagesDir, options));
     }
 
     if (fs.existsSync(appDir)) {
         console.log('Scanning app/ directory...');
-        routes = routes.concat(scanDirectory(appDir));
+        routes = routes.concat(scanDirectory(appDir, options));
     } else if (fs.existsSync(srcAppDir)) {
         console.log('Scanning src/app/ directory...');
-        routes = routes.concat(scanDirectory(srcAppDir));
+        routes = routes.concat(scanDirectory(srcAppDir, options));
     }
 
     // Deduplicate
@@ -97,6 +131,8 @@ export const fuzzyRoutes = ${JSON.stringify(routes, null, 2)};
     fs.writeFileSync(outputPath, content);
 
     console.log(`✅ Generated ${routes.length} routes to fuzzy-routes.ts`);
+    if (options.exclude?.length) console.log(`   Excluded: ${options.exclude.join(', ')}`);
+    if (options.includeDynamic) console.log(`   Included dynamic routes`);
 }
 
 generateRoutes();

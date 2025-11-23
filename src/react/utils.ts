@@ -7,9 +7,16 @@ import { RouteObject } from 'react-router-dom';
  * @returns An array of absolute path strings
  */
 export function extractRoutes(routes: RouteObject[], parentPath = ''): string[] {
+    if (!Array.isArray(routes)) {
+        console.warn('[fuzzy-redirect] extractRoutes expected an array of routes');
+        return [];
+    }
+
     let paths: string[] = [];
 
     for (const route of routes) {
+        if (!route || typeof route !== 'object') continue;
+
         let currentPath = parentPath;
 
         if (route.path) {
@@ -25,15 +32,10 @@ export function extractRoutes(routes: RouteObject[], parentPath = ''): string[] 
             // Clean up double slashes if any
             currentPath = currentPath.replace(/\/+/g, '/');
 
-            // Don't add paths with parameters (e.g., /users/:id) as they can't be fuzzy matched easily
-            // unless we implement advanced pattern matching. For now, we skip them or keep them?
-            // Keeping them might cause weird matches like "/users/123" matching "/users/:id" literally.
-            // Better to exclude dynamic segments for now or just include them and let the user decide.
-            // We will include them but users should be aware.
             paths.push(currentPath);
         }
 
-        if (route.children) {
+        if (route.children && Array.isArray(route.children)) {
             paths = paths.concat(extractRoutes(route.children, currentPath));
         }
     }
