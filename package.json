@@ -1,0 +1,89 @@
+{
+    "name": "fuzzy-redirect",
+    "version": "1.0.0",
+    "description": "Fuzzy URL matching and redirection for React and Next.js applications.",
+    "main": "dist/cjs/index.js",
+    "module": "dist/esm/index.js",
+    "types": "dist/types/index.d.ts",
+    "scripts": {
+        "build": "npm run build:cjs && npm run build:esm && npm run build:types",
+        "build:cjs": "tsc -p tsconfig.cjs.json",
+        "build:esm": "tsc -p tsconfig.esm.json",
+        "build:types": "tsc -p tsconfig.types.json",
+        "test": "jest",
+        "lint": "eslint src/**/*.ts",
+        "prepublishOnly": "npm run build"
+    },
+    "bin": {
+        "fuzzy-redirect-gen": "./dist/cjs/cli/generate.js"
+    },
+    "keywords": [
+        "react",
+        "nextjs",
+        "redirect",
+        "fuzzy-match",
+        "404",
+        "router"
+    ],
+    "author": "Kuber Mehta",
+    "license": "MIT",
+    "peerDependencies": {
+        "react": ">=16.0.0",
+        "next": ">=12.0.0",
+        "react-router-dom": ">=6.0.0"
+    },
+    "peerDependenciesMeta": {
+        "next": {
+            "optional": true
+        },
+        "react-router-dom": {
+            "optional": true
+        }
+    },
+    "devDependencies": {
+        "@types/jest": "^29.5.0",
+        "@types/node": "^18.0.0",
+        "@types/react": "^18.0.0",
+        "@types/react-router-dom": "^5.3.3",
+        "@typescript-eslint/eslint-plugin": "^5.0.0",
+        "@typescript-eslint/parser": "^5.0.0",
+        "eslint": "^8.0.0",
+        "jest": "^29.5.0",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
+        "react-router-dom": "^6.0.0",
+        "next": "^13.0.0",
+        "ts-jest": "^29.1.0",
+        "typescript": "^5.0.0",
+        "@testing-library/react": "^14.0.0",
+        "@testing-library/jest-dom": "^5.16.5",
+        "jest-environment-jsdom": "^29.5.0"
+    },
+    "exports": {
+        ".": {
+            "import": "./dist/esm/index.js",
+            "require": "./dist/cjs/index.js",
+            "types": "./dist/types/index.d.ts"
+        },
+        "./next": {
+            "import": "./dist/esm/next/index.js",
+            "require": "./dist/cjs/next/index.js",
+            "types": "./dist/types/next/index.d.ts"
+        },
+        "./next-app": {
+            "import": "./dist/esm/next/app.js",
+            "require": "./dist/cjs/next/app.js",
+            "types": "./dist/types/next/app.d.ts"
+        },
+        "./core": {
+            "import": "./dist/esm/core/fuzzy.js",
+            "require": "./dist/cjs/core/fuzzy.js",
+            "types": "./dist/types/core/fuzzy.d.ts"
+        }
+    },
+    "files": [
+        "dist",
+        "README.md",
+        "LICENSE"
+    ]
+}
