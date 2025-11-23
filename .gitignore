@@ -37,3 +37,6 @@ pnpm-debug.log*
 # Auto-generated routes
 fuzzy-routes.ts
 fuzzy-routes.js
+
+# This
+PUBLISHING.md
