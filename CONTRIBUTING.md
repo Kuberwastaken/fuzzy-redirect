@@ -7,7 +7,7 @@ Thank you for your interest in contributing to `fuzzy-redirect`!
 1.  **Fork the repository** on GitHub.
 2.  **Clone your fork** locally:
     ```bash
-    git clone https://github.com/YOUR_USERNAME/fuzzy-redirect.git
+    git clone https://github.com/kuberwastaken/fuzzy-redirect.git
     cd fuzzy-redirect
     ```
 3.  **Install dependencies**:
