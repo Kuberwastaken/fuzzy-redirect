@@ -13,7 +13,7 @@ const TestComponent = ({ routes }: { routes: string[] }) => {
         return <div>Redirecting to {redirectedTo}</div>;
     }
 
-    return <div>Current: {location.pathname}</div>;
+    return <div>Current: {location.pathname}{location.search}</div>;
 };
 
 describe('useFuzzyRedirect (React)', () => {
@@ -37,19 +37,23 @@ describe('useFuzzyRedirect (React)', () => {
                 </Routes>
             </MemoryRouter>
         );
-
-        // The hook triggers a navigation. 
-        // In a real app, this updates the router state.
-        // We check if the router updated to the new path.
         expect(screen.getByText('Arrived at About')).toBeInTheDocument();
     });
 
-    test('does not redirect if no match found', () => {
+    test('preserves query params on redirect', () => {
         render(
-            <MemoryRouter initialEntries={['/xyz']}>
-                <TestComponent routes={routes} />
+            <MemoryRouter initialEntries={['/abuot?ref=google']}>
+                <Routes>
+                    <Route path="*" element={<TestComponent routes={routes} />} />
+                    <Route path="/about" element={<LocationDisplay />} />
+                </Routes>
             </MemoryRouter>
         );
-        expect(screen.getByText('Current: /xyz')).toBeInTheDocument();
+        expect(screen.getByText('Path: /about, Search: ?ref=google')).toBeInTheDocument();
     });
 });
+
+const LocationDisplay = () => {
+    const location = useLocation();
+    return <div>Path: {location.pathname}, Search: {location.search}</div>;
+};

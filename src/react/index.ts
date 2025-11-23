@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { findClosestRoute, FuzzyMatchOptions } from '../core/fuzzy';
 
@@ -10,32 +10,30 @@ export interface UseFuzzyRedirectProps {
 
 /**
  * Hook to automatically redirect to the closest matching route on 404.
- * Note: This hook should be used in a component that renders when no other route matches (e.g., a 404 page),
- * or it can be used globally if you manually check for 404s.
- * 
- * Usage:
- * const NotFound = () => {
- *   const redirected = useFuzzyRedirect({ routes: allRoutes });
- *   if (redirected) return <p>Redirecting...</p>;
- *   return <h1>404 Not Found</h1>;
- * };
  */
 export function useFuzzyRedirect({ routes, options }: UseFuzzyRedirectProps): string | null {
     const location = useLocation();
     const navigate = useNavigate();
 
+    // Calculate closest match during render (memoized)
+    const closest = useMemo(() => {
+        return findClosestRoute(location.pathname, routes, options);
+    }, [location.pathname, routes, options]);
+
     useEffect(() => {
         const currentPath = location.pathname;
-        const closest = findClosestRoute(currentPath, routes, options);
 
         if (closest && closest !== currentPath) {
-            // Prevent infinite loops if closest is same as current (handled in findClosest but double check)
-            navigate(closest, { replace: true });
-        }
-    }, [location.pathname, navigate, routes, options]);
+            // Preserve query params and hash
+            const search = location.search || '';
+            const hash = location.hash || '';
+            const target = closest + search + hash;
 
-    const currentPath = location.pathname;
-    return findClosestRoute(currentPath, routes, options);
+            navigate(target, { replace: true });
+        }
+    }, [closest, location.pathname, location.search, location.hash, navigate]);
+
+    return closest;
 }
 
 /**

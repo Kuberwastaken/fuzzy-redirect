@@ -1,6 +1,6 @@
 {
     "name": "fuzzy-redirect",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Fuzzy URL matching and redirection for React and Next.js applications.",
     "main": "dist/cjs/index.js",
     "module": "dist/esm/index.js",

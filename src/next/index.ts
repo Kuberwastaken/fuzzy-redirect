@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { findClosestRoute, FuzzyMatchOptions } from '../core/fuzzy';
 
@@ -13,18 +13,29 @@ export interface UseFuzzyRedirectProps {
 export function useFuzzyRedirect({ routes, options }: UseFuzzyRedirectProps): string | null {
     const router = useRouter();
 
+    // Calculate closest match
+    // We use asPath because it contains the full path including query
+    // But for matching we only want the pathname
+    const currentPath = router.isReady ? router.asPath.split('?')[0] : '';
+
+    const closest = useMemo(() => {
+        if (!currentPath) return null;
+        return findClosestRoute(currentPath, routes, options);
+    }, [currentPath, routes, options]);
+
     useEffect(() => {
-        // Ensure router is ready
-        if (!router.isReady) return;
+        if (!router.isReady || !closest) return;
 
-        const currentPath = router.asPath.split('?')[0]; // Ignore query params
-        const closest = findClosestRoute(currentPath, routes, options);
+        if (closest !== currentPath) {
+            // Preserve query params
+            const queryIndex = router.asPath.indexOf('?');
+            const query = queryIndex !== -1 ? router.asPath.substring(queryIndex) : '';
+            const target = closest + query;
 
-        if (closest && closest !== currentPath) {
-            router.replace(closest);
+            router.replace(target);
         }
-    }, [router.isReady, router.asPath, routes, options]);
+    }, [router.isReady, closest, currentPath, router.asPath, router]);
 
     if (!router.isReady) return null;
-    return findClosestRoute(router.asPath.split('?')[0], routes, options);
+    return closest;
 }

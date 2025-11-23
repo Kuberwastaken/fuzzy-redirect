@@ -53,8 +53,13 @@ export function findClosestRoute(
 ): string | null {
     const { threshold = 3, relativeThreshold = 0.4 } = options;
 
-    // Normalize path: remove trailing slash, ensure leading slash
+    // Normalize path: remove trailing slash, ensure leading slash, decode URI
     const normalize = (p: string) => {
+        try {
+            p = decodeURI(p);
+        } catch (e) {
+            // Ignore malformed URI
+        }
         let s = p.trim();
         if (!s.startsWith('/')) s = '/' + s;
         if (s.length > 1 && s.endsWith('/')) s = s.slice(0, -1);

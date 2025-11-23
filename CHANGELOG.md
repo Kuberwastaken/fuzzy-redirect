@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.1] - 2025-11-23
+
+### Fixed
+-   Preserve query parameters and hash fragments during redirect.
+-   Fix double execution of fuzzy matching logic in React hook.
+-   Add URL decoding to handle encoded characters (e.g., `%20`).
+-   Ensure correct usage of `next/navigation` router.
+
 ## [1.0.0] - 2025-11-23
 
 ### Added

@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 // @ts-ignore - Ignore missing dependency for older Next.js versions
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { findClosestRoute, FuzzyMatchOptions } from '../core/fuzzy';
 
 export interface UseFuzzyRedirectProps {
@@ -14,17 +14,25 @@ export interface UseFuzzyRedirectProps {
 export function useAppFuzzyRedirect({ routes, options }: UseFuzzyRedirectProps): string | null {
     const pathname = usePathname();
     const router = useRouter();
+    const searchParams = useSearchParams();
+
+    const closest = useMemo(() => {
+        if (!pathname) return null;
+        return findClosestRoute(pathname, routes, options);
+    }, [pathname, routes, options]);
 
     useEffect(() => {
-        if (!pathname) return;
+        if (!pathname || !closest) return;
 
-        const closest = findClosestRoute(pathname, routes, options);
+        if (closest !== pathname) {
+            // Preserve query params
+            const search = searchParams?.toString();
+            const target = search ? `${closest}?${search}` : closest;
 
-        if (closest && closest !== pathname) {
-            router.replace(closest);
+            router.replace(target);
         }
-    }, [pathname, router, routes, options]);
+    }, [pathname, closest, router, searchParams]);
 
     if (!pathname) return null;
-    return findClosestRoute(pathname, routes, options);
+    return closest;
 }
