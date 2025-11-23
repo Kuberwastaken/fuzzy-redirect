@@ -151,4 +151,4 @@ const validRoutes = extractRoutes(routes);
 
 ## License
 
-MIT © [Kuber Mehta](https://github.com/kubermehta)
+MIT © [Kuber Mehta](https://github.com/Kuberwastaken/fuzzy-redirect/blob/main/LICENSE)
