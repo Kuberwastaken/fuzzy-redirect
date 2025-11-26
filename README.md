@@ -1,6 +1,6 @@
 # fuzzy-redirect
 
-Fuzzy URL matching and redirection for React and Next.js applications. Prevents 404 errors by automatically redirecting users to the closest matching valid route when they enter a URL with typos or minor structure errors.
+Autocorrect for your Website URLs - Fuzzy URL matching and redirection for React and Next.js applications. Prevents 404 errors by automatically redirecting users to the closest matching valid route when they enter a URL with typos or minor structure errors.
 
 ## Features
 
@@ -152,3 +152,4 @@ const validRoutes = extractRoutes(routes);
 ## License
 
 MIT © [Kuber Mehta](https://github.com/Kuberwastaken/fuzzy-redirect/blob/main/LICENSE)
+
